@@ -1,83 +1,108 @@
 ---
 name: score-vendor
-description: Score a new or unfamiliar AI security vendor/product against the "Enterprise Strategy & Reference Architecture — Securing Autonomous Agents & NHI" strategy document's own criteria and tooling matrix. Use this whenever the user names a specific AI security company or product and asks how it stacks up, fits, compares, or scores against their strategy, guidelines, framework, or matrix — for example "score ForceAI", "how would Lasso's new product fit our matrix", "does XYZ Security cover a gap we have", "I just found this vendor at a conference, is it worth a look", or "a client asked me about <vendor>, what do I tell them." Also trigger when the user mentions discovering or being pitched a vendor during enterprise client consulting and wants an assessment before recommending it. Do NOT use this for general AI security news research (that's the separate daily-briefing routine) or for questions about a vendor already named in the strategy doc that don't ask for a fresh score.
+description: Grade a named AI security vendor/product, as a standalone tool, against the full OWASP Agentic (ASI01–ASI10)/LLM Top 10 and MITRE ATLAS taxonomy used in the "Enterprise Strategy & Reference Architecture — Securing Autonomous Agents & NHI" strategy document — producing a per-MAESTRO-layer coverage map, calling out gaps, and naming which other vendor (already in the client's matrix, e.g. Lakera, CrowdStrike, Okta, Aembit, or a new one) would close each gap. Use this whenever the user names a specific AI security company or product and wants to know how much of the security framework it covers on its own, what's missing, or what else a client would need alongside it — for example "score ForceAI", "how would Lasso's new product fit our matrix", "does XYZ Security cover a gap we have", "I just found this vendor at a conference, is it worth a look", "a client asked me about <vendor>, what do I tell them", or "what would I still need if a client bought <vendor>." Also trigger when the user mentions discovering or being pitched a vendor during enterprise client consulting and wants a coverage/gap assessment before recommending it or a complementary stack. Do NOT use this for general AI security news research (that's the separate daily-briefing routine) or for questions about a vendor already named in the strategy doc that don't ask for a fresh assessment.
 ---
 
-# Vendor Scorecard: AI Security Tooling Assessment
+# Vendor Coverage & Gap Analysis: OWASP / MITRE ATLAS Grading
 
 ## Why this exists
 
-The strategy document already encodes a specific, opinionated point of view: guardrails aren't a security boundary, brownfield leverage beats point solutions, and nothing gets named without evidence of real-world validation. When a new vendor comes up in a client conversation, the useful question isn't "is this a good product" in the abstract — it's "does this hold up against the same bar everything else in this document had to clear." This skill applies that existing bar to a new name, rather than inventing a generic vendor-eval rubric from scratch.
+Clients don't buy one AI security product and stop — they buy a stack, and the consulting value is in knowing exactly what a given product covers and what it still leaves exposed. The strategy document already organizes the full threat surface into 7 MAESTRO layers, each mapped to specific OWASP ASI/LLM categories and MITRE ATLAS techniques (Section 2), and already names which tools cover which layer today (Section 3). This skill uses that existing taxonomy as the grading rubric for a new vendor — not "does this deserve a line in my document," but "graded as a standalone product against the full framework, where does it actually reach, where doesn't it, and what already-known (or new) vendor closes each gap."
 
-Most vendor lookups should end in "interesting, not yet actionable." Only a minority will be solid enough to propose as a change to the document. Resist the pull to make every lookup feel productive by queuing something — a scorecard that concludes "no action" is a successful, complete use of this skill.
+The output is a client-ready coverage map, not a single verdict. A vendor scoring well on 2 of 7 layers and poorly elsewhere is a completely normal, useful result — most point products aren't supposed to cover everything, and telling a client "this handles your MCP tooling risk but you still need something for memory poisoning and runtime execution" is the actual deliverable, not a disappointment to soften.
 
 ## Inputs
 
-- The vendor or product name (required) — e.g. "ForceAI."
-- Whatever context the user already has: a URL, how they encountered it (client mentioned it, conference booth, a cold pitch), a specific claim they want checked, or which MAESTRO layer they suspect it targets. Use it, but don't require it — go research if it's missing.
+- The vendor or product name (required) — e.g. "Lasso" or "ForceAI."
+- Whatever context the user already has: a URL, how they encountered it, a specific claim to check, or a client's specific concern the vendor is being pitched against. Use it, but don't require it — go research if it's missing.
 
 ## Step 1: Read the current master fresh
 
-Never assume you know the current file ID or the document's current content from an earlier session — both drift over time as revisions get approved.
+Never assume you know the current file ID or content from an earlier session — both drift as revisions get approved.
 
 1. `mcp__Google_Drive__search_files` with `title = 'Enterprise Strategy & Reference Architecture — Securing Autonomous Agents & NHI'`. If more than one result comes back, or none, stop and ask the user — don't guess. Never use a file whose title contains "Archived."
-2. `mcp__Google_Drive__read_file_content` on that file ID to get the full current text. You need Section 3 (the layer-by-layer tooling matrix) in front of you before you can score anything against it — the whole point is comparing the new vendor to what's already named there, row by row.
+2. `mcp__Google_Drive__read_file_content` on that file ID. Pull both **Section 2** (the MAESTRO → OWASP ASI/LLM → MITRE ATLAS mapping table — this is the grading rubric itself) and **Section 3** (which vendor is already named against each layer today — this is your source of gap-filling recommendations before you look anywhere else).
 
 ## Step 2: Research the vendor
 
-Use WebSearch. The daily AI-security-briefing routine for this same document has already run into fabricated regulatory figures and stale claims recirculating through aggregator summaries — apply the same discipline here: verify anything specific (a stat, a customer name, a claimed integration, a funding figure) against the vendor's own site or an independent outlet before repeating it, and say "unverified" rather than dropping a claim you can't confirm but that seems load-bearing.
+Use WebSearch. The daily briefing routine for this same document has run into fabricated figures and stale claims recirculating through aggregator summaries — apply the same discipline: verify anything specific (a stat, a customer name, an integration claim) before repeating it, and mark it "unverified" rather than dropping a load-bearing claim you can't confirm.
 
-Look for:
-- **What it actually does, mechanically.** Not the tagline — the actual technical approach. This is what determines which MAESTRO layer(s) it addresses: Model (Inbound/Outbound) / Agent & State / Environment & Memory / Security & Governance / Tools & Skills (MCP) / Runtime Execution / Operations & Orchestration. A vendor can span more than one row.
-- **Evidence of real deployment.** Named customers, case studies, incident-response engagements, independent audits or pen-test results — versus a site that's all launch-announcement and no track record.
-- **Anything that cuts against it.** A CVE in the vendor's own product, credible criticism, a security incident involving the vendor itself, or a claim that doesn't survive a second source.
-- **How it relates to what Section 3 already names for that row.** Complementary to an existing tool (e.g. another NHI-governance option alongside Aembit/Oasis Security), a direct competitor, or something genuinely new that no current row covers.
+Find out, specifically:
+- **What it actually does, mechanically** — the real technical mechanism, not the tagline. You'll map this against each of the 7 layers in Step 3, so you need enough detail to judge, layer by layer, whether it genuinely addresses that layer's threats or just adjacent marketing language.
+- **How it enforces, per capability** — for each thing it claims to do, is that a deterministic, non-bypassable control (sandboxing, signed identity, capability tokens, egress control) or an inference-based judgment (a classifier or model scoring another model's output)? The document's own Deterministic Enforcement Axiom treats the latter as weaker coverage even when it technically addresses the layer — note this as a caveat on each row, not a separate score.
+- **Evidence of real deployment** — named customers, case studies, independent audits, incident-response engagements, versus launch-announcement-only claims.
+- **Anything that cuts against it** — a CVE in the vendor's own product, credible criticism, an incident involving the vendor itself.
 
-## Step 3: Score against the document's own criteria
+## Step 3: Grade coverage, layer by layer, against Section 2's own taxonomy
 
-Don't invent a fresh rubric — use the standards the document already applies to everything else in it. Rate each as **Strong / Conditional / Weak / Not Applicable** with one sentence of justification tied to something you actually found in Step 2, not a generic statement.
+Use the exact ASI/LLM/ATLAS labels Section 2 already assigns to each MAESTRO layer — this keeps every vendor you ever score in this skill comparable against the same fixed rubric, rather than a new one invented per vendor:
 
-1. **Deterministic Enforcement Axiom.** The document's core position is that natural-language/LLM-based guardrails are not a security boundary — only deterministic, non-bypassable controls are (sandboxing, signed identity, capability tokens, network egress control). Does this vendor's mechanism actually enforce anything deterministically, or is its "security" a model judging model output?
-2. **Brownfield Leverage vs. Point Solution.** The document explicitly prefers extending an enterprise's existing platform investment (identity, EDR, SIEM, DLP — see the "Brownfield Enterprise Leverage" column) over adding a new standalone tool to operate. Which is this?
-3. **Real-World Validation.** Score as Validated / Emerging / Unvalidated. The document already treats several named tools this way — e.g. it names CrowdStrike Falcon Guardian and flags it "independently validate before relying on it exclusively" rather than treating a launch announcement as proof. Hold this vendor to the same standard: a slick site with no customers is Unvalidated regardless of how good the pitch is.
-4. **Gap Coverage.** Does this fill a row that's currently thin (e.g. Model-layer safety-training attestation, which the document itself flags as an unmet tooling need) or does it compete in a row that's already well covered? Filling a real gap is worth more than being a slightly-better version of something already named.
-5. **Regulatory/Compliance Relevance.** Does it bear on Section 7 — EU AI Act GPAI obligations, or the vendor-disclosure-practices angle the document tracks? Most vendors will be Not Applicable here; that's fine.
+| # | MAESTRO Layer | OWASP (from Section 2) | MITRE ATLAS (from Section 2) |
+|---|---|---|---|
+| 1 | Model (Inbound & Outbound) | ASI04; LLM05/LLM10 | AML.T0010; AML.T0031 |
+| 2 | Agent (Planning) & State | ASI01; ASI10 | AML.T0040; AML.T0051 |
+| 3 | Environment & Memory | ASI06; LLM06 | AML.T0035; AML.T0031 |
+| 4 | Security & Governance | ASI09; LLM07 | AML.T0043; AML.T0029 |
+| 5 | Tools & Skills (MCP) | ASI02; ASI03 | AML.T0053; AML.T0048 |
+| 6 | Runtime Execution | ASI05; LLM08 | AML.T0047; AML.T0042 |
+| 7 | Operations & Orchestration | ASI07; ASI08 | AML.T0015; AML.T0037 |
 
-## Step 4: Present the scorecard in chat
+(Pull these fresh from the doc in Step 1 rather than trusting this table verbatim — Section 2 is the source of truth and may have changed since this skill was written.)
 
-Use this structure:
+For each of the 7 layers, grade the vendor **as a standalone product** (assume the client has nothing else in place yet):
+
+- **Full** — directly and substantively addresses the named ASI/LLM categories and ATLAS techniques for this layer, with a real technical mechanism you can point to.
+- **Partial** — touches the layer but only addresses part of it, or addresses it through a weaker mechanism (e.g. a classifier judgment where the layer really calls for a deterministic control), or the claim is unverified/marketing-only.
+- **None** — the vendor doesn't claim or plausibly reach this layer at all.
+
+Write one sentence of evidence per layer — tie it to something specific from Step 2, not a restatement of the vendor's own category label.
+
+## Step 4: For every Partial or None layer, name what closes the gap
+
+This is the step that makes the output useful to a client, not just a report card.
+
+1. **Check Section 3 first.** For that layer's row, what's already named there (Brownfield Enterprise Leverage column and Frontier AI Security Tooling column)? If something already in the client's matrix covers it, name it directly — e.g. "Row 4 gap → NeMo Guardrails / Lakera Guard already covers this in your matrix."
+2. **If Section 3's row is itself thin or flags an unmet gap** (the document sometimes says so explicitly, e.g. the Model-layer safety-training-attestation gap), say that plainly — this is a real market gap, not something to paper over with an invented recommendation.
+3. **Only reach for a vendor not yet in the matrix if neither of the above applies** — and when you do, hold it to the same validation bar as Step 2 (real deployment evidence, not just a name you recall).
+
+## Step 5: Present the coverage report in chat
 
 ```
-## [Vendor Name] — Vendor Scorecard
+## [Vendor Name] — OWASP / MITRE ATLAS Coverage & Gap Analysis
 
 **What it does:** [1-2 sentence plain-language technical summary]
-**MAESTRO layer(s):** [row(s)]
 
-| Criterion | Rating | Why |
-|---|---|---|
-| Deterministic Enforcement | ... | ... |
-| Brownfield vs. Point Solution | ... | ... |
-| Real-World Validation | ... | ... |
-| Gap Coverage | ... | ... |
-| Regulatory/Compliance Relevance | ... | ... |
+| Layer | Coverage | Evidence | Enforcement note |
+|---|---|---|---|
+| 1. Model | Full/Partial/None | ... | deterministic / inference-based |
+| 2. Agent & State | ... | ... | ... |
+| 3. Environment & Memory | ... | ... | ... |
+| 4. Security & Governance | ... | ... | ... |
+| 5. Tools & Skills (MCP) | ... | ... | ... |
+| 6. Runtime Execution | ... | ... | ... |
+| 7. Operations & Orchestration | ... | ... | ... |
 
-**Bottom line:** [one direct sentence — e.g. "Worth a pilot conversation," "Not yet proven, revisit in 6 months," or "Duplicates existing Row 5 tooling, no action needed."]
+**Overall:** Full coverage on [N] of 7 layers, partial on [N], none on [N].
+
+**Gaps and what closes them:**
+- Layer [X] ([Partial/None]) → [existing matrix vendor] already covers this / [market gap, no good option yet] / [new vendor recommendation, with validation caveat]
+- ...
+
+**Bottom line for the client:** [one direct paragraph — what this product is actually good for, what stack it needs alongside it to reach comprehensive coverage, and any enforcement-strength caveats worth flagging even on the layers it does cover.]
 ```
 
-Be as direct and skeptical here as the daily briefing already is with its own bottom-line calls — a vendor with no case studies and a guardrail-only approach should read as unimpressive, not be softened into false balance.
+Be as direct as the daily briefing already is — a vendor covering one layer via a fast classifier is genuinely useful for that layer, but say plainly if that coverage is weaker in kind than the deterministic controls named elsewhere in the matrix, so the client doesn't over-rely on it.
 
-## Step 5: Decide whether this is material — and act accordingly
+## Step 6: Only if warranted, queue a strategy-doc update
 
-Most scorecards stop here. Only continue to queuing a document change when the finding is genuinely material: it fills a row that's currently empty or thin, it's validated enough to sit alongside the tools already named, or it corrects something already in the doc. "Interesting but Unvalidated" or "duplicates existing tooling" is a complete, successful outcome on its own — say so and stop.
+The coverage report is the deliverable most of the time — don't force a document edit onto every scoring. Only continue if a **Full**-rated layer genuinely deserves to be named in Section 3 (it's validated enough to sit alongside what's already there, and either fills a currently-thin row or is a clearly better option than what's named):
 
-If it is material:
-
-1. `mcp__Google_Drive__search_files` with `title = 'Strategy Doc — Pending Proposed Changes'`. If one exists, read its full content first — it may already hold other unapproved items from the daily briefing routine, and none of that content gets touched or lost.
-2. Take that content (or, if no pending doc exists yet, the current master's content) as your base, and add the new item into the relevant Section 3 row using the exact conventions already in use in that document: wrap the addition in `<span style="color:#B8860B"><i>[Proposed <today's date>] ...</i></span>`, write it as a precedent/tooling addition in the same voice as the surrounding text, and cite your sources by name and URL inline. Then add a matching dated bullet under the "Revision Notes" section at the bottom, under a `[Proposed <date>, pending review — not yet approved]` heading (create that heading if today is the first proposal since the last approval, or add to it if one already exists for today).
+1. `mcp__Google_Drive__search_files` with `title = 'Strategy Doc — Pending Proposed Changes'`. Read its full content first if one exists — it may hold other unapproved items from the daily briefing routine or other scorings, and none of that content gets touched or lost.
+2. Add the new item into the relevant Section 3 row using the exact conventions already in use: wrap it in `<span style="color:#B8860B"><i>[Proposed <today's date>] ...</i></span>`, written in the same voice as the surrounding text, with sources cited inline. Add a matching dated bullet under "Revision Notes" at the bottom, under a `[Proposed <date>, pending review — not yet approved]` heading (create it if none exists for today, or add to it if one does).
 3. Never edit or remove any existing content, approved or already-proposed — only add.
-4. If a pending doc already existed, `mcp__Google_Drive__trash_file` the old version, then `mcp__Google_Drive__create_file` the merged replacement (`contentMimeType: "text/html"`, title exactly `Strategy Doc — Pending Proposed Changes`). If none existed, just create it fresh. Never edit the approved master directly — that only happens when the user explicitly approves and asks for promotion.
-5. Tell the user plainly what was added and link the pending doc, e.g.: "Queued: added ForceAI as a second Row 2 option alongside Aembit/Oasis Security. Awaiting your review here: [link]."
+4. If a pending doc already existed, `mcp__Google_Drive__trash_file` the old version, then `mcp__Google_Drive__create_file` the merged replacement (`contentMimeType: "text/html"`, title exactly `Strategy Doc — Pending Proposed Changes`). If none existed, create it fresh. Never touch the approved master directly — promotion only happens on the user's explicit approval.
+5. Tell the user plainly what was added and link the pending doc.
 
 ## What this skill does not do
 
-No email send and no GitHub commit — that's the daily-briefing routine's job, not this one. This skill is chat output plus, occasionally, a Google Drive edit. It also never promotes the pending doc into the master itself; that stays a separate, explicit, user-initiated action, same as it already is for the daily briefing's findings.
+No email send and no GitHub commit — that's the daily-briefing routine's job. This skill is chat output plus, occasionally, a Google Drive edit to the pending-changes doc. It never promotes that doc into the master itself; that stays a separate, explicit, user-initiated action.
