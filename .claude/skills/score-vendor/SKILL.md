@@ -1,6 +1,6 @@
 ---
 name: score-vendor
-description: Grade a named AI security vendor/product, as a standalone tool, against the full OWASP Agentic (ASI01–ASI10)/LLM Top 10 and MITRE ATLAS taxonomy used in the "Enterprise Strategy & Reference Architecture — Securing Autonomous Agents & NHI" strategy document — producing a per-MAESTRO-layer coverage map, calling out gaps, and naming which other vendor (already in the client's matrix, e.g. Lakera, CrowdStrike, Okta, Aembit, or a new one) would close each gap. Use this whenever the user names a specific AI security company or product and wants to know how much of the security framework it covers on its own, what's missing, or what else a client would need alongside it — for example "score ForceAI", "how would Lasso's new product fit our matrix", "does XYZ Security cover a gap we have", "I just found this vendor at a conference, is it worth a look", "a client asked me about <vendor>, what do I tell them", or "what would I still need if a client bought <vendor>." Also trigger when the user mentions discovering or being pitched a vendor during enterprise client consulting and wants a coverage/gap assessment before recommending it or a complementary stack. Do NOT use this for general AI security news research (that's the separate daily-briefing routine) or for questions about a vendor already named in the strategy doc that don't ask for a fresh assessment.
+description: Grade a named AI security vendor/product, as a standalone tool, against the full OWASP Agentic (ASI01–ASI10)/LLM Top 10 and MITRE ATLAS taxonomy used in the "Enterprise Strategy & Reference Architecture — Securing Autonomous Agents & NHI" strategy document — producing a per-MAESTRO-layer coverage map, calling out gaps, and naming which other vendor (already in the client's matrix, e.g. Lakera, CrowdStrike, Okta, Aembit, or a new one) would close each gap. Use this whenever the user names a specific AI security company or product and wants to know how much of the security framework it covers on its own, what's missing, or what else a client would need alongside it — for example "score ForceAI", "how would Lasso's new product fit our matrix", "does XYZ Security cover a gap we have", "I just found this vendor at a conference, is it worth a look", "a client asked me about <vendor>, what do I tell them", or "what would I still need if a client bought <vendor>." Also trigger when the user mentions discovering or being pitched a vendor during enterprise client consulting and wants a coverage/gap assessment before recommending it or a complementary stack, and when the user says a previously-produced report from this skill "is final" or asks to export/send it as a PowerPoint/deck/slides for a client. Do NOT use this for general AI security news research (that's the separate daily-briefing routine) or for questions about a vendor already named in the strategy doc that don't ask for a fresh assessment.
 ---
 
 # Vendor Coverage & Gap Analysis: OWASP / MITRE ATLAS Grading
@@ -93,7 +93,26 @@ This is the step that makes the output useful to a client, not just a report car
 
 Be as direct as the daily briefing already is — a vendor covering one layer via a fast classifier is genuinely useful for that layer, but say plainly if that coverage is weaker in kind than the deterministic controls named elsewhere in the matrix, so the client doesn't over-rely on it.
 
-## Step 6: Only if warranted, queue a strategy-doc update
+## Step 6: Export to PowerPoint — only when the user confirms the report is final
+
+Don't build a deck automatically after presenting the chat report — most scorings are quick lookups that never need one. Only build it when the user gives an explicit signal that this specific report, as shown, is the one they want to hand to a client: phrases like "this is final," "export this to PowerPoint/a deck/slides," "send this as a deck," or "make this a slide for the client." If they instead ask you to change a rating or add a layer, that's a revision to Step 3–5, not a request to export — update the chat report first and wait for a fresh confirmation before building anything.
+
+When confirmed, build from the exact scorecard already agreed on in this conversation — do not re-research or re-grade. Use `pptxgenjs` (see the `pptx` skill for the library's gotchas — hex colors, shadow offsets, `isTextBox`, etc.) and match the same design system as the main client deck for this account, so a client sees one consistent visual identity across everything you hand them:
+
+- **Colors** (hex, no `#`): background `FFFFFF`; primary text/headers `0B2545`; accent `1F4E8C`; tertiary `13315C`; muted body `44618C`; light tints `EAF0FA` / `DCE6F5`.
+- **Font:** Calibri throughout.
+- **Layout:** `LAYOUT_WIDE` (13.33in × 7.5in) — set `pres.layout` before adding slides, since the pptxgenjs default canvas is smaller.
+
+Build exactly 4 slides — this is a single-vendor brief, not the full strategy deck, so keep it tight:
+
+1. **Title slide** — "[Vendor Name] — AI Security Coverage Assessment," subtitle "OWASP Agentic (ASI) / MITRE ATLAS Coverage & Gap Analysis," today's date, and "Prepared for: [client]" if the user has named one in this conversation (omit the line entirely if not).
+2. **Coverage table slide** — the 7-layer table (Layer / Coverage / Enforcement Note), condensed to fit one slide; drop the "Evidence" column's full sentences down to a short phrase each so it's client-scannable, not the dense chat version.
+3. **Gaps & Complementary Tools slide** — one line per Partial/None layer naming what closes it, exactly as agreed in Step 4.
+4. **Bottom Line slide** — a dark-navy (`0B2545` background, white/`EAF0FA` text) closing slide carrying the bottom-line paragraph from Step 5, mirroring the main strategy deck's closing "Key Takeaways" treatment.
+
+After building: `python scripts/office/validate.py <file>.pptx` from the pptx skill's scripts directory, and fix anything it flags before delivering. Deliver with `SendUserFile` — title it "[Vendor Name] - AI Security Coverage Assessment.pptx." This deck is a standalone one-off for this vendor lookup: it doesn't touch Google Drive, doesn't get emailed, and doesn't get archived to GitHub — none of that infrastructure applies to a single client-facing scorecard.
+
+## Step 7: Only if warranted, queue a strategy-doc update
 
 The coverage report is the deliverable most of the time — don't force a document edit onto every scoring. Only continue if a **Full**-rated layer genuinely deserves to be named in Section 3 (it's validated enough to sit alongside what's already there, and either fills a currently-thin row or is a clearly better option than what's named):
 
